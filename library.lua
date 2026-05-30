@@ -1,5 +1,5 @@
 -- ==============================================================================
--- ORIOLE SYSTEM FRAMEWORK (XENON UNIVERSAL EDITION)
+-- ORIOLE CORE FRAMEWORK v1.0.2 (REPAIRED & XENON OPTIMIZED)
 -- ==============================================================================
 
 local UserInputService = game:GetService("UserInputService")
@@ -11,12 +11,10 @@ local Players = game:GetService("Players")
 local OrioleLib = {}
 OrioleLib.__index = OrioleLib
 
--- Global Environment Registration (Verhindert das "Nichts öffnet sich"-Problem)
 if getgenv then
     getgenv().OrioleLib = OrioleLib
 end
 
--- Ultra-Clean Dark Hex Theme
 OrioleLib.Theme = {
     Main = {
         Background = Color3.fromRGB(15, 15, 15),
@@ -50,41 +48,58 @@ OrioleLib.Theme = {
     },
 }
 
--- Safe Protected Instance Factory
 local function CreateInstance(className, properties)
     local instance = Instance.new(className)
-    for k, v in pairs(properties) do instance[k] = v end
+    for k, v in pairs(properties) do 
+        instance[k] = v 
+    end
     return instance
 end
 
-local function ApplyCorner(parent, radius) return CreateInstance("UICorner", { CornerRadius = radius, Parent = parent }) end
-local function ApplyStroke(parent, color, thickness) return CreateInstance("UIStroke", { Color = color, Thickness = thickness, Parent = parent }) end
-
-local function AddHoverEffect(element, targetColor, baseColor)
-    element.MouseEnter:Connect(function() TweenService:Create(element, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play() end)
-    element.MouseLeave:Connect(function() TweenService:Create(element, TweenInfo.new(0.2), {BackgroundColor3 = baseColor}):Play() end)
+local function ApplyCorner(parent, radius) 
+    return CreateInstance("UICorner", { CornerRadius = radius, Parent = parent }) 
 end
 
--- High-Performance Drag System
+local function ApplyStroke(parent, color, thickness) 
+    return CreateInstance("UIStroke", { Color = color, Thickness = thickness, Parent = parent }) 
+end
+
+local function AddHoverEffect(element, targetColor, baseColor)
+    element.MouseEnter:Connect(function() 
+        TweenService:Create(element, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play() 
+    end)
+    element.MouseLeave:Connect(function() 
+        TweenService:Create(element, TweenInfo.new(0.2), {BackgroundColor3 = baseColor}):Play() 
+    end)
+end
+
 local function MakeDraggable(ui, dragElement)
     local dragging, dragInput, dragStart, startPos
+    
     dragElement.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             startPos = ui.Position
+            
             local connection
             connection = input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
-                    if connection then connection:Disconnect() end
+                    if connection then 
+                        connection:Disconnect() 
+                    end
                 end
             end)
         end
     end)
+    
     dragElement.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then 
+            dragInput = input 
+        end
     end)
+    
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - dragStart
@@ -93,7 +108,6 @@ local function MakeDraggable(ui, dragElement)
     end)
 end
 
--- Init Core
 function OrioleLib:Init(title)
     local library = setmetatable({}, OrioleLib)
     library.Tabs = {}
@@ -139,7 +153,6 @@ function OrioleLib:Init(title)
     return library
 end
 
--- Tab Management
 function OrioleLib:AddTab(name)
     local tab = {Active = false}
 
@@ -186,7 +199,6 @@ function OrioleLib:AddTab(name)
     return tab
 end
 
--- Component Engines
 function OrioleLib:AddLabel(tabObj, text)
     local LabelFrame = CreateInstance("Frame", { Size = UDim2.new(1, 0, 0, OrioleLib.Theme.Elements.Height), BackgroundColor3 = OrioleLib.Theme.Elements.DefaultBackground, Parent = tabObj.TabContent })
     ApplyCorner(LabelFrame, OrioleLib.Theme.Elements.CornerRadius)
@@ -215,12 +227,18 @@ function OrioleLib:AddToggle(tabObj, text, defaultState, callback)
     ApplyCorner(Outer, UDim.new(1, 0))
     local Handle = CreateInstance("Frame", { Size = UDim2.new(0, 14, 0, 14), Position = UDim2.new(0, 2, 0.5, -7), BackgroundColor3 = OrioleLib.Theme.Elements.Text, Parent = Outer })
     ApplyCorner(Handle, UDim.new(1, 0))
+    
     local function RenderState()
         TweenService:Create(Handle, TweenInfo.new(0.2), { Position = state and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7), BackgroundColor3 = state and OrioleLib.Theme.Elements.ToggleActive or OrioleLib.Theme.Elements.Text }):Play()
         TweenService:Create(Outer, TweenInfo.new(0.2), { BackgroundColor3 = state and OrioleLib.Theme.Elements.ToggleActive or Color3.fromRGB(40, 40, 40) }):Play()
     end
     RenderState()
-    ActionButton.MouseButton1Click:Connect(function() state = not state RenderState() task.spawn(pcall, callback, state) end)
+    
+    ActionButton.MouseButton1Click:Connect(function() 
+        state = not state 
+        RenderState() 
+        task.spawn(pcall, callback, state) 
+    end)
 end
 
 function OrioleLib:AddSlider(tabObj, text, min, max, defaultState, callback)
@@ -237,6 +255,7 @@ function OrioleLib:AddSlider(tabObj, text, min, max, defaultState, callback)
     ApplyCorner(Bar, UDim.new(1, 0))
     local Handle = CreateInstance("TextButton", { Size = UDim2.new(0, 12, 0, 12), Position = UDim2.new(0, -6, 0.5, -6), BackgroundColor3 = OrioleLib.Theme.Elements.SliderHandle, Text = "", Parent = Track })
     ApplyCorner(Handle, UDim.new(1, 0))
+    
     local function update(inputX)
         local pct = math.clamp((inputX - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
         val = min + (pct * (max - min))
@@ -245,14 +264,20 @@ function OrioleLib:AddSlider(tabObj, text, min, max, defaultState, callback)
         Handle.Position = UDim2.new(pct, -6, 0.5, -6)
         task.spawn(pcall, callback, val)
     end
+    
     Handle.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = true end end)
     UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end end)
     UserInputService.InputChanged:Connect(function(input) if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then update(input.Position.X) end end)
+    
     local initPct = (val - min) / (max - min)
     Bar.Size = UDim2.new(initPct, 0, 1, 0)
     Handle.Position = UDim2.new(initPct, -6, 0.5, -6)
 end
 
-function OrioleLib:Destroy() if self.ScreenGui then self.ScreenGui:Destroy() end end
+function OrioleLib:Destroy() 
+    if self.ScreenGui then 
+        self.ScreenGui:Destroy() 
+    end 
+end
 
 return OrioleLib
